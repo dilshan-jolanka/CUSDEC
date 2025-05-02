@@ -1,7 +1,5 @@
+pdfplumber
 streamlit
 requests
 python-dotenv
-pdfplumber
 pandas
-PyPDF2
-
