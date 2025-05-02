@@ -1,0 +1,7 @@
+pip install streamlit
+pip install requests
+pip install python-dotenv
+pip install pdfplumber
+pip install pandas
+pip install PyPDF2
+
