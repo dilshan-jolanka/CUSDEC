@@ -211,18 +211,38 @@ Document text:
                           cleaned_value = value.strip()
 
                           # Create a list of potential prefixes to remove
-                          potential_prefixes = [
-                              f"{display_key}:",
-                              f"{display_key} :",
-                              f"{gemini_key}:",
-                              f"{gemini_key} :",
-                              # Add more variations if needed, e.g., just the box number
-                              f"{gemini_key.split(':')[0]}:",
-                              f"{gemini_key.split(':')[0]} :",
-                          ]
+                          # Include variations based on both the original key and display name
+                          potential_prefixes = []
+                          if gemini_key:
+                              potential_prefixes.extend([
+                                  f"{gemini_key}:", f"{gemini_key} :", f"{gemini_key} "
+                              ])
+                              # Add parts of the gemini_key as prefixes
+                              gemini_key_parts = re.split(r'[:\s]+', gemini_key)
+                              for part in gemini_key_parts:
+                                  if part: # Avoid empty strings
+                                       potential_prefixes.extend([
+                                           f"{part}:", f"{part} :", f"{part} "
+                                       ])
+
+                          if display_key:
+                               potential_prefixes.extend([
+                                   f"{display_key}:", f"{display_key} :", f"{display_key} "
+                               ])
+                               # Add parts of the display_key as prefixes
+                               display_key_parts = re.split(r'[:\s]+', display_key)
+                               for part in display_key_parts:
+                                   if part: # Avoid empty strings
+                                        potential_prefixes.extend([
+                                            f"{part}:", f"{part} :", f"{part} "
+                                        ])
+
+                          # Remove duplicates and sort by length descending to remove longer prefixes first
+                          potential_prefixes = sorted(list(set(potential_prefixes)), key=len, reverse=True)
 
                           for prefix in potential_prefixes:
-                              if cleaned_value.lower().startswith(prefix.lower()):
+                              # Use re.escape to handle special characters in prefixes
+                              if re.match(re.escape(prefix), cleaned_value, re.IGNORECASE):
                                   # Remove the prefix and leading/trailing whitespace
                                   cleaned_value = cleaned_value[len(prefix):].strip()
                                   # Break after removing the first matching prefix
@@ -277,6 +297,10 @@ def main():
     # Set the title of the Streamlit app
     st.markdown('<h1 class="main-title">CUSDEC II Data Extractor</h1>', unsafe_allow_html=True)
     st.write("Upload a CUSDEC II PDF to extract specific data fields from the first page.")
+
+    # Add the warning message
+    st.warning("Please note: This is an AI-powered extraction system and may make mistakes. Always double-check the extracted data before saving or using it.")
+
 
     # File uploader widget
     uploaded_file = st.file_uploader("Upload a PDF", type=["pdf"])
