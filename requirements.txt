@@ -4,5 +4,6 @@ python-dotenv
 pdfplumber
 pandas
 PyPDF2
+xlsxwriter
 
 
